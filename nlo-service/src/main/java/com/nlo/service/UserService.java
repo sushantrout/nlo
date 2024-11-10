@@ -61,7 +61,7 @@ public class UserService {
         }
         try {
             UserDetails principal = (UserDetails) authentication.getPrincipal();
-            User user = userRepository.findByEmail(principal.getUsername()).orElseThrow();
+            User user = userRepository.findByUsername(principal.getUsername()).orElseThrow();
             return userMapper.toDto(user);
         } catch (Exception e) {
             return null;

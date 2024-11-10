@@ -42,7 +42,7 @@ public class AuthService {
                         request.getPassword()
                 )
         );
-        var user = userRepository.findByEmail(request.getEmail())
+        var user = userRepository.findByUsername(request.getEmail())
                 .orElseThrow();
         // Convert it to UserDetails
         org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), List.of());
@@ -71,7 +71,7 @@ public class AuthService {
         refreshToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
-            User user = this.userRepository.findByEmail(userEmail)
+            User user = this.userRepository.findByUsername(userEmail)
                     .orElseThrow();
             // Convert it to UserDetails
             org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), List.of());
