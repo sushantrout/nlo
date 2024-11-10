@@ -32,7 +32,15 @@ public class UserService {
 
     public UserDto saveUser(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        if(Objects.isNull(user.getUsername())) {
+            user.setUsername(userDto.getUsername());
+        }
+        String password = userDto.getPassword();
+
+        if(password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }

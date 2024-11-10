@@ -15,13 +15,17 @@ public class User {
     @Tsid
     private String id;
 
+    @Column(unique = true)
     private String username;
 
     private String password;
+
     private String email;
 
     private String firstName;
     private String lastName;
+
+    @Column(unique = true)
     private String mobile;
 
     private String name;

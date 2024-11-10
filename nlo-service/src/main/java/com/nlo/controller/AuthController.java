@@ -56,12 +56,7 @@ public class AuthController {
     }
 
 
-    @RequestMapping({"hello"})
-    public String firstPage() {
-        return "Hello World";
-    }
-
-    @GetMapping(value = "requestOtp/{phoneNo}")
+    @GetMapping(value = "request-otp/{phoneNo}")
     public Map<String, Object> getOtp(@PathVariable String phoneNo) {
         Map<String, Object> returnMap = new HashMap<>();
         try {
@@ -78,7 +73,7 @@ public class AuthController {
         return returnMap;
     }
 
-    @PostMapping(value = "verifyOtp")
+    @PostMapping(value = "verify-otp")
     public Map<String, Object> verifyOtp(@RequestBody AuthRequest authenticationRequest) {
         Map<String, Object> returnMap = new HashMap<>();
         try {
