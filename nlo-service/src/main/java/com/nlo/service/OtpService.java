@@ -3,6 +3,10 @@ package com.nlo.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -11,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class OtpService {
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     private static final Integer EXPIRE_MIN = 5;
     private LoadingCache<String, String> otpCache;
 
@@ -26,6 +33,10 @@ public class OtpService {
     }
 
     public String generateOtp(String phoneNo) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNo);
+        if(userDetails == null) {
+            throw new UsernameNotFoundException(phoneNo + " Not found!!");
+        }
         return getRandomOTP(phoneNo);
     }
 

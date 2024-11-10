@@ -82,7 +82,7 @@ public class AuthController {
                 String jwtToken = createAuthenticationToken(authenticationRequest);
                 returnMap.put("status", "success");
                 returnMap.put("message", "Otp verified successfully");
-                returnMap.put("jwt", jwtToken);
+                returnMap.put("access_token", jwtToken);
                 otpService.clearOtp(authenticationRequest.getPhoneNo());
             } else {
                 returnMap.put("status", "success");
