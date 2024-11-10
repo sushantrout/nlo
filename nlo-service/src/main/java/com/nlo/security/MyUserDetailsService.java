@@ -27,7 +27,11 @@ public class MyUserDetailsService implements UserDetailsService {
             user.setUsername(username);
             userRepository.save(user);
         }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), "",
+        String password = user.getPassword();
+        if(password == null) {
+            password = "";
+        }
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), password,
                 new ArrayList<>());
     }
 }

@@ -8,7 +8,7 @@ import com.nlo.repository.UserRepository;
 import com.nlo.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,14 +21,15 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
+    private UserRepository userRepository;
+    private JwtService jwtService;
 
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    @Qualifier("username-password-manager")
+    private AuthenticationManager authenticationManager;
 
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
