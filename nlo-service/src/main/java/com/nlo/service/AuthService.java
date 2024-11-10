@@ -9,6 +9,7 @@ import com.nlo.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
     private final AuthenticationManager authenticationManager;
 
     @Value("${application.security.jwt.expiration}")
