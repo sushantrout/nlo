@@ -23,8 +23,10 @@ import java.util.List;
 @Service
 @Transactional
 public class AuthService {
-
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private JwtService jwtService;
 
     @Autowired
