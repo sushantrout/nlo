@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PollResponseRepository extends BaseRepository<PollResponse> {
-    List<PollResponse> findByPoll(Poll pollId);
+    List<PollResponse> findByPollId(String pollId);
 }

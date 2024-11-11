@@ -8,4 +8,6 @@ import lombok.Setter;
 public class PollResponseDTO extends BaseDTO {
     private String pollId;
     private String answerId;
+    private String userId;
+    private String constituencyName;
 }

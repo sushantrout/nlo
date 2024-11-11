@@ -32,8 +32,8 @@ public class UserService {
 
     public UserDto saveUser(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
-        if(Objects.isNull(user.getUsername())) {
-            user.setUsername(userDto.getUsername());
+        if((Objects.isNull(user.getUsername()) || user.getUsername().isBlank()) && Objects.nonNull(user.getMobile())) {
+            user.setUsername(userDto.getMobile());
         }
         String password = userDto.getPassword();
 

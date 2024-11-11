@@ -23,6 +23,15 @@ public class PollResponseMapper implements BaseMapper<PollResponseDTO, PollRespo
         if(Objects.nonNull(pollResponse.getOption())) {
             dto.setAnswerId(pollResponse.getOption().getId());
         }
+
+        dto.setConstituencyName("");
+        if(Objects.nonNull(pollResponse.getUser())) {
+            dto.setUserId(pollResponse.getUser().getId());
+            if(Objects.nonNull(pollResponse.getUser().getConstituency())) {
+                dto.setConstituencyName(pollResponse.getUser().getConstituency().getTitle());
+            }
+        }
+
         return dto;
     }
 
