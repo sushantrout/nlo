@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PollResponseRepository extends BaseRepository<PollResponse> {
     List<PollResponse> findByPollId(String pollId);
+    List<PollResponse> findByPollIdInAndUserId(List<String> polls, String userId);
 }

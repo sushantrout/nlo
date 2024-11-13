@@ -47,6 +47,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, D extends BaseDTO, M
     @Override
     public Page<D> getAll(Pageable pageable) {
         Page<E> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
+
         return dataPage.map(mapper::toDto);
     }
 

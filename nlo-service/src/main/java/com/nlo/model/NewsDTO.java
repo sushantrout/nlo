@@ -20,4 +20,5 @@ public class NewsDTO extends BaseDTO{
     private ReactionType currentUserReaction;
     private Integer totalLike;
     private Boolean hot;
+    private Number totalShare;
 }

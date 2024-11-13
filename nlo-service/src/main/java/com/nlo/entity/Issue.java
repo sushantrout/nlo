@@ -13,5 +13,5 @@ public class Issue  extends BaseEntity{
     private String title;
 
     @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubIssue> subIssues;;
+    private List<SubIssue> subIssues;
 }

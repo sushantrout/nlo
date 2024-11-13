@@ -40,8 +40,8 @@ public abstract class BaseController<D, S extends BaseService<D>> {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse getById(@PathVariable String id) {
-        Optional<D> optionalEntity = service.getById(id);
+    public ApiResponse getById(@PathVariable String id, @RequestParam(value = "shareId", required = false) String shareId) {
+        Optional<D> optionalEntity = service.getById(id, shareId);
         return optionalEntity.map(entity -> ApiResponse.builder()
                         .status(HttpStatus.OK.toString())
                         .data(entity).build())

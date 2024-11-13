@@ -16,12 +16,14 @@ import com.nlo.security.JwtService;
 import com.nlo.validation.NewsValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,30 +45,66 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
     @Autowired
     private AttachmentService attachmentService;
 
+    @Lazy
+    @Autowired
+    private NewsShareService newsShareService;
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
     protected NewsService(NewsRepository repository, NewsMapper mapper, NewsValidation validation) {
         super(repository, mapper, validation);
     }
 
-    public NewsDTO reaction(String newsId, ReactionDTO reactionDTO) {
-        News news = repository.findById(newsId).orElseThrow(() -> new RuntimeException("News not found"));
-        news.getReactions().add(reactionMapper.toEntity(reactionDTO));
-        NewsDTO newsDTO = mapper.toDto(repository.save(news));
-
-        UserDto currentUser = userService.getCurrentUser();
-        if (Objects.nonNull(currentUser)) {
-            String currentUserId = currentUser.getId();
-            reactionRepository.findByUserIdAndNewsIds(currentUserId, List.of(newsId)).stream().findFirst().ifPresent(reactionDBDTO -> {
-                newsDTO.setCurrentUserReaction(reactionDBDTO.getReactionType());
-            });
+    public Optional<NewsDTO> getById(String id, String shareId) {
+        Optional<News> dataOpt = repository.findById(id);
+        Optional<NewsDTO> newsDTO = dataOpt.map(mapper::toDto);
+        if(newsDTO.isPresent()) {
+            ArrayList<NewsDTO> dtoList = new ArrayList<>();
+            dtoList.add(newsDTO.get());
+            getAllWithReaction(dtoList);
+        }
+        activeShareCount(shareId);
+        if(newsDTO.isPresent()) {
+            newsDTO.get().setTotalShare(newsShareService.getShareCountByNewsId(dataOpt.get()));
         }
         return newsDTO;
     }
 
-    public List<NewsDTO> getAllWithReaction() {
+    private void activeShareCount(String shareId) {
+        newsShareService.updateTheStatus(shareId);
+    }
 
-        List<News> news = repository.findAll();
-        List<String> newsIds = news.stream().map(News::getId).toList();
-        List<NewsDTO> dtoList = mapper.toDtoList(news);
+    public NewsDTO reaction(String newsId, ReactionDTO reactionDTO) {
+        News news = repository.findById(newsId).orElseThrow(() -> new RuntimeException("News not found"));
+
+        UserDto currentUser = userService.getCurrentUser();
+        if (Objects.nonNull(currentUser)) {
+            String currentUserId = currentUser.getId();
+            Optional<ReactionDBDTO> first = reactionRepository.findByUserIdAndNewsIds(currentUserId, List.of(newsId)).stream().findFirst();
+            if(first.isPresent()) {
+                String reactionId = first.get().getReactionId();
+                reactionRepository.findById(reactionId).ifPresent(re -> {
+                    re.setReactionType(reactionDTO.getReactionType());
+                    reactionRepository.save(re);
+                });
+            } else {
+                news.getReactions().add(reactionMapper.toEntity(reactionDTO));
+                repository.save(news);
+            }
+        }
+        return mapper.toDto(repository.findById(newsId).get());
+    }
+
+    @Override
+    public Page<NewsDTO> getAll(Pageable pageable) {
+        Page<News> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
+        Page<NewsDTO> newsDTOS = dataPage.map(mapper::toDto);
+        getAllWithReaction(newsDTOS.getContent());
+        return newsDTOS;
+    }
+
+    public List<NewsDTO> getAllWithReaction(List<NewsDTO> dtoList) {
+        List<String> newsIds = dtoList.stream().map(NewsDTO::getId).toList();
 
         UserDto currentUser = userService.getCurrentUser();
         if (Objects.nonNull(currentUser)) {
@@ -84,8 +122,12 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
                 }
             });
         }
-
         return dtoList;
+    }
+    public List<NewsDTO> getAllWithReaction() {
+        List<News> news = repository.findAll();
+        List<NewsDTO> dtoList = mapper.toDtoList(news);
+        return getAllWithReaction(dtoList);
     }
 
     public List<NewsDTO> getAllHotNews() {
