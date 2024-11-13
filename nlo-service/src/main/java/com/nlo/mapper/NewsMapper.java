@@ -1,10 +1,15 @@
 package com.nlo.mapper;
 
+import com.nlo.entity.Category;
 import com.nlo.entity.News;
+import com.nlo.model.CategoryDTO;
 import com.nlo.model.NewsDTO;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Component
 @Transactional
@@ -26,6 +31,14 @@ public class NewsMapper implements BaseMapper<NewsDTO, News> {
         newsDTO.setHot(news.getHot());
         newsDTO.setCreatedOn(news.getCreatedOn());
         newsDTO.setUpdatedOn(news.getUpdatedOn());
+
+        if(Objects.nonNull(news.getCategory())) {
+            Category category = news.getCategory();
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setId(category.getId());
+            categoryDTO.setTitle(category.getTitle());
+            newsDTO.setCategory(categoryDTO);
+        }
         return newsDTO;
     }
 
@@ -42,6 +55,14 @@ public class NewsMapper implements BaseMapper<NewsDTO, News> {
         news.setHot(newsDTO.getHot());
         news.setCreatedOn(newsDTO.getCreatedOn());
         news.setUpdatedOn(newsDTO.getUpdatedOn());
+
+        if(Objects.nonNull(newsDTO.getCategory())) {
+            CategoryDTO categoryDTO = newsDTO.getCategory();
+            Category category = new Category();
+            category.setId(categoryDTO.getId());
+            news.setCategory(category);
+        }
+
         return news;
     }
 }

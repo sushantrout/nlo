@@ -1,11 +1,11 @@
 package com.nlo.service;
 
+import com.nlo.constant.ReactionType;
 import com.nlo.entity.Attachment;
-import com.nlo.entity.Grievance;
+import com.nlo.entity.Category;
 import com.nlo.entity.News;
 import com.nlo.mapper.NewsMapper;
 import com.nlo.mapper.ReactionMapper;
-import com.nlo.model.GrievanceDTO;
 import com.nlo.model.NewsDTO;
 import com.nlo.model.ReactionDTO;
 import com.nlo.model.UserDto;
@@ -22,8 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,8 +46,6 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
     @Lazy
     @Autowired
     private NewsShareService newsShareService;
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     protected NewsService(NewsRepository repository, NewsMapper mapper, NewsValidation validation) {
         super(repository, mapper, validation);
@@ -81,16 +77,21 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         if (Objects.nonNull(currentUser)) {
             String currentUserId = currentUser.getId();
             Optional<ReactionDBDTO> first = reactionRepository.findByUserIdAndNewsIds(currentUserId, List.of(newsId)).stream().findFirst();
-            if(first.isPresent()) {
-                String reactionId = first.get().getReactionId();
-                reactionRepository.findById(reactionId).ifPresent(re -> {
-                    re.setReactionType(reactionDTO.getReactionType());
-                    reactionRepository.save(re);
-                });
+            if(Objects.nonNull(reactionDTO) && reactionDTO.getReactionType().equals(ReactionType.NONE) && first.isPresent()) {
+                reactionRepository.deleteById(first.get().getReactionId());
             } else {
-                news.getReactions().add(reactionMapper.toEntity(reactionDTO));
-                repository.save(news);
+                if(first.isPresent()) {
+                    String reactionId = first.get().getReactionId();
+                    reactionRepository.findById(reactionId).ifPresent(re -> {
+                        re.setReactionType(reactionDTO.getReactionType());
+                        reactionRepository.save(re);
+                    });
+                } else {
+                    news.getReactions().add(reactionMapper.toEntity(reactionDTO));
+                    repository.save(news);
+                }
             }
+
         }
         return mapper.toDto(repository.findById(newsId).get());
     }
@@ -149,5 +150,13 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         news.setHot(value);
         repository.save(news);
         return mapper.toDto(news);
+    }
+
+    public Page<NewsDTO> getAllNewsByType(String categoryId, Pageable pageable) {
+        Category category = new Category();
+        category.setId(categoryId);
+        Page<NewsDTO> newsDTOS = repository.findByCategoryAndDeletedFalseOrDeletedIsNull(category, pageable).map(mapper::toDto);
+        getAllWithReaction(newsDTOS.getContent());
+        return newsDTOS;
     }
 }

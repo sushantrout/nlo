@@ -22,4 +22,8 @@ public class News extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Reaction> reactions = new ArrayList<>();
     private Boolean hot;
+
+    @ManyToOne
+    private Category category;
+
 }

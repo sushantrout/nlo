@@ -1,8 +1,12 @@
 package com.nlo.controller;
 
+import com.nlo.model.ApiResponse;
 import com.nlo.model.NewsDTO;
 import com.nlo.model.ReactionDTO;
 import com.nlo.service.NewsService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,9 +29,19 @@ public class NewsController extends BaseController<NewsDTO, NewsService>{
         return service.reaction(newsId, reactionDTO);
     }
 
-    @GetMapping("/find-all-details/hot")
-    public List<NewsDTO> getAllHotNews(){
-        return service.getAllHotNews();
+    @GetMapping("/find-all-details/{categoryId}")
+    public ApiResponse getAllHotNews(@PathVariable("categoryId") String categoryId, Pageable pageable){
+        Page<NewsDTO> resp = service.getAllNewsByType(categoryId, pageable);
+        return ApiResponse.builder()
+                .data(resp.get())
+                .status(HttpStatus.OK.toString())
+                .totalPages(resp.getTotalPages())
+                .total(resp.getTotalElements())
+                .data(resp.getContent())
+                .pageNum(resp.getNumber())
+                .pageSize(pageable.getPageSize())
+                .currentPageSize(resp.getNumberOfElements())
+                .build();
     }
 
     @PostMapping("/save-with-attachment")
