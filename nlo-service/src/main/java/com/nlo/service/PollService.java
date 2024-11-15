@@ -30,33 +30,6 @@ public class PollService extends BaseServiceImpl<Poll, PollDTO, PollMapper, Poll
     @Override
     public Page<PollDTO> getAll(Pageable pageable) {
         Page<Poll> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
-        try {
-            UserDto currentUser = userService.getCurrentUser();
-            String currentUserId = currentUser.getId();
-
-            // Get IDs of polls the user has already answered
-            List<PollResponse> responses = pollResponseRepository.findByPollIdInAndUserId(
-                    dataPage.getContent().stream().map(Poll::getId).toList(), currentUserId);
-
-            List<String> alreadyAnsweredIds = responses.stream()
-                    .map(PollResponse::getPoll)
-                    .map(Poll::getId)
-                    .toList();
-
-            // Filter out polls the user has already answered
-            List<PollDTO> filteredPolls = dataPage.getContent().stream()
-                    .filter(poll -> !alreadyAnsweredIds.contains(poll.getId()))
-                    .map(mapper::toDto)
-                    .toList();
-
-            // Return filtered results as a Page
-            return new PageImpl<>(filteredPolls, pageable, dataPage.getTotalElements());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Map all polls to DTOs if an exception occurs
         return dataPage.map(mapper::toDto);
     }
 
@@ -64,5 +37,13 @@ public class PollService extends BaseServiceImpl<Poll, PollDTO, PollMapper, Poll
     public PollDTO getLatest() {
         Poll poll = repository.findTopByOrderByCreatedOnDesc().orElseThrow();
         return mapper.toDto(poll);
+    }
+
+    public Page<PollDTO> getPageDataForMobile(Pageable pageable) {
+
+        UserDto currentUser = userService.getCurrentUser();
+        String currentUserId = currentUser.getId();
+        Page<Poll> pollsNotAnsweredByUser = repository.findPollsNotAnsweredByUser(currentUserId, pageable);
+        return pollsNotAnsweredByUser.map(mapper::toDto);
     }
 }
