@@ -8,6 +8,8 @@ import com.nlo.model.*;
 import com.nlo.repository.PollRepository;
 import com.nlo.repository.PollResponseRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
@@ -72,4 +74,7 @@ public class PollResponseService {
     }
 
 
+    public Page<RatingDTO> getTopRatedList(Pageable pageable) {
+        return pollResponseRepository.findTopUsersByTotalRate(pageable);
+    }
 }

@@ -14,6 +14,7 @@ public class OptionMapper implements BaseMapper<OptionDTO, Option> {
         optionDTO.setId(option.getId());
         optionDTO.setSortOrder(option.getSortOrder());
         optionDTO.setTitle(option.getTitle());
+        optionDTO.setRate(option.getRate());
         return optionDTO;
     }
 
@@ -23,6 +24,7 @@ public class OptionMapper implements BaseMapper<OptionDTO, Option> {
         option.setId(optionDTO.getId());
         option.setSortOrder(optionDTO.getSortOrder());
         option.setTitle(optionDTO.getTitle());
+        option.setRate(optionDTO.getRate());
         return option;
     }
 }

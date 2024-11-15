@@ -4,6 +4,7 @@ import com.nlo.entity.Poll;
 import com.nlo.entity.PollResponse;
 import com.nlo.mapper.PollMapper;
 import com.nlo.model.PollDTO;
+import com.nlo.model.RatingDTO;
 import com.nlo.model.UserDto;
 import com.nlo.repository.PollRepository;
 import com.nlo.repository.PollResponseRepository;

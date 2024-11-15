@@ -10,4 +10,5 @@ import lombok.Setter;
 public class Option extends BaseEntity {
     private String title;
     private Integer sortOrder;
+    private Integer rate;
 }

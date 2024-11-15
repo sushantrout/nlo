@@ -8,4 +8,5 @@ import lombok.Setter;
 public class OptionDTO extends BaseDTO{
     private String title;
     private Integer sortOrder;
+    private Integer rate;
 }
