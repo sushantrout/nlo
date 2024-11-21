@@ -1,5 +1,6 @@
 package com.nlo.model;
 
+import com.nlo.constant.Role;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,4 +19,5 @@ public class UserDto implements Serializable {
     private String mobile;
     private String profileImage;
     private ConstituencyDTO constituencyDTO;
+    private Role role;
 }

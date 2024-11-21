@@ -6,7 +6,9 @@ import com.nlo.model.UserDto;
 import com.nlo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -74,5 +78,12 @@ public class UserService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public List<UserDto> getUserByConstituency(String constituencyId) {
+        return userRepository.findByConstituencyId(constituencyId).stream().map(userMapper::toDto)
+                .filter(e -> Objects.nonNull(e.getUsername()))
+                .sorted(Comparator.comparing(UserDto::getUsername))
+                .toList();
     }
 }

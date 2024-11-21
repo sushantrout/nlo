@@ -1,5 +1,6 @@
 package com.nlo.entity;
 
+import com.nlo.constant.Role;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,4 +36,7 @@ public class User {
 
     @ManyToOne
     private Constituency constituency;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

@@ -19,5 +19,7 @@ public interface BaseService<D> {
     void deleteAll(List<String> id);
     boolean existsById(String id);
     List<D> all();
-    default Optional<D> getById(String id, String shareId){return null;}
+    default Optional<D> getById(String id, String shareId){
+        return getById(id);
+    }
 }

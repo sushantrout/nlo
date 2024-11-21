@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/api/users")
 @RequiredArgsConstructor
@@ -44,4 +46,8 @@ public class UserController {
         return userService.getCurrentUser();
     }
 
+    @GetMapping(value = "/constituency/{constituencyId}")
+    public List<UserDto> getUserByConstituency(@PathVariable String constituencyId) {
+        return userService.getUserByConstituency(constituencyId);
+    }
 }

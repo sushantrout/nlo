@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class ReactionDBDTO {
     private String reactionId;
     private String currentUser;
-    private String newsId;
+    private String dataId;
     private ReactionType reactionType;
 }

@@ -4,6 +4,7 @@ import com.nlo.constant.ReactionType;
 import com.nlo.entity.Attachment;
 import com.nlo.entity.Category;
 import com.nlo.entity.News;
+import com.nlo.entity.Reaction;
 import com.nlo.mapper.NewsMapper;
 import com.nlo.mapper.ReactionMapper;
 import com.nlo.model.NewsDTO;
@@ -51,6 +52,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         super(repository, mapper, validation);
     }
 
+    @Override
     public Optional<NewsDTO> getById(String id, String shareId) {
         Optional<News> dataOpt = repository.findById(id);
         Optional<NewsDTO> newsDTO = dataOpt.map(mapper::toDto);
@@ -60,9 +62,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
             getAllWithReaction(dtoList);
         }
         activeShareCount(shareId);
-        if(newsDTO.isPresent()) {
-            newsDTO.get().setTotalShare(newsShareService.getShareCountByNewsId(dataOpt.get()));
-        }
+        newsDTO.ifPresent(dto -> dto.setTotalShare(newsShareService.getShareCountByNewsId(dataOpt.get())));
         return newsDTO;
     }
 
@@ -76,8 +76,11 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         UserDto currentUser = userService.getCurrentUser();
         if (Objects.nonNull(currentUser)) {
             String currentUserId = currentUser.getId();
+            reactionDTO.setUserId(currentUserId);
             Optional<ReactionDBDTO> first = reactionRepository.findByUserIdAndNewsIds(currentUserId, List.of(newsId)).stream().findFirst();
-            if(Objects.nonNull(reactionDTO) && reactionDTO.getReactionType().equals(ReactionType.NONE) && first.isPresent()) {
+            if(reactionDTO.getReactionType().equals(ReactionType.NONE) && first.isPresent()) {
+                news.setReactions(news.getReactions().stream().filter(e -> e.getUserId() != null && !e.getUserId().equals(currentUserId)).collect(Collectors.toList()));
+                repository.save(news);
                 reactionRepository.deleteById(first.get().getReactionId());
             } else {
                 if(first.isPresent()) {
@@ -87,7 +90,9 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
                         reactionRepository.save(re);
                     });
                 } else {
-                    news.getReactions().add(reactionMapper.toEntity(reactionDTO));
+                    Reaction entity = reactionMapper.toEntity(reactionDTO);
+                    entity = reactionRepository.save(entity);
+                    news.getReactions().add(entity);
                     repository.save(news);
                 }
             }
@@ -113,7 +118,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
             List<ReactionDBDTO> currentUserReactions = reactionRepository.findByUserIdAndNewsIds(currentUserId, newsIds);
 
             Map<String, ReactionDBDTO> reactionMap = currentUserReactions.stream()
-                    .collect(Collectors.toMap(ReactionDBDTO::getNewsId, reaction -> reaction, (a, b) -> a));
+                    .collect(Collectors.toMap(ReactionDBDTO::getDataId, reaction -> reaction, (a, b) -> a));
 
             // Update the news DTOs with the current user's reaction if present
             dtoList.forEach(newsDTO -> {
@@ -125,6 +130,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         }
         return dtoList;
     }
+
     public List<NewsDTO> getAllWithReaction() {
         List<News> news = repository.findAll();
         List<NewsDTO> dtoList = mapper.toDtoList(news);
