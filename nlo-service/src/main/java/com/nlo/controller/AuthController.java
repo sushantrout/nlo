@@ -1,7 +1,9 @@
 package com.nlo.controller;
 
+import com.nlo.entity.User;
 import com.nlo.model.AuthRequest;
 import com.nlo.model.AuthResponse;
+import com.nlo.repository.UserRepository;
 import com.nlo.security.JwtService;
 import com.nlo.security.MyUserDetailsService;
 import com.nlo.service.AuthService;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,6 +30,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -77,12 +81,18 @@ public class AuthController {
     public Map<String, Object> verifyOtp(@RequestBody AuthRequest authenticationRequest) {
         Map<String, Object> returnMap = new HashMap<>();
         try {
+            User user = userRepository.findByMobile(authenticationRequest.getPhoneNo())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             //verify otp
             if (authenticationRequest.getOtp().equals(otpService.getCacheOtp(authenticationRequest.getPhoneNo()))) {
-                String jwtToken = createAuthenticationToken(authenticationRequest);
+                AuthResponse authResponse = authService.getAuthResponseFromUser(user);
                 returnMap.put("status", "success");
                 returnMap.put("message", "Otp verified successfully");
-                returnMap.put("access_token", jwtToken);
+                returnMap.put("access_token", authResponse.getAccessToken());
+                returnMap.put("expires_in", authResponse.getExpiresIn());
+                returnMap.put("refresh_token", authResponse.getRefreshToken());
+                returnMap.put("refresh_token_expires_in", authResponse.getRefreshTokenExpiresIn());
+                returnMap.put("token_type", authResponse.getTokenType());
                 otpService.clearOtp(authenticationRequest.getPhoneNo());
             } else {
                 returnMap.put("status", "success");

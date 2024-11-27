@@ -47,6 +47,10 @@ public class AuthService {
         );
         var user = userRepository.findByUsername(request.getEmail())
                 .orElseThrow();
+        return getAuthResponseFromUser(user);
+    }
+
+    public AuthResponse getAuthResponseFromUser(User user) {
         // Convert it to UserDetails
         org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), List.of());
 
