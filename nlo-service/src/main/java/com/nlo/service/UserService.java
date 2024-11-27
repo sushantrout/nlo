@@ -2,6 +2,7 @@ package com.nlo.service;
 
 import com.nlo.entity.User;
 import com.nlo.mapper.UserMapper;
+import com.nlo.model.AuthRequest;
 import com.nlo.model.UserDto;
 import com.nlo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,5 +86,11 @@ public class UserService {
                 .filter(e -> Objects.nonNull(e.getUsername()))
                 .sorted(Comparator.comparing(UserDto::getUsername))
                 .toList();
+    }
+
+    @Transactional
+    public User findByMobile(AuthRequest authenticationRequest) {
+        return userRepository.findByMobile(authenticationRequest.getPhoneNo())
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

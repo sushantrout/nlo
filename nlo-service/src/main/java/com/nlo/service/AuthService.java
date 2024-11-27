@@ -8,6 +8,7 @@ import com.nlo.repository.UserRepository;
 import com.nlo.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -50,9 +52,11 @@ public class AuthService {
         return getAuthResponseFromUser(user);
     }
 
+    @Transactional
     public AuthResponse getAuthResponseFromUser(User user) {
         // Convert it to UserDetails
-        org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), List.of());
+        String password = Optional.ofNullable(user.getPassword()).orElse("");
+        org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(), password, List.of());
 
         var accessToken = jwtService.generateToken(userDetails);
         var refreshToken = jwtService.generateRefreshToken(userDetails);

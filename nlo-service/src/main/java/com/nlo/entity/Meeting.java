@@ -17,7 +17,7 @@ public class Meeting extends BaseEntity {
     private String description;
     private String communicationType;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "constituency_id", nullable = false)
     private Constituency constituency;
 }

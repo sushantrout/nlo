@@ -8,6 +8,7 @@ import com.nlo.security.JwtService;
 import com.nlo.security.MyUserDetailsService;
 import com.nlo.service.AuthService;
 import com.nlo.service.OtpService;
+import com.nlo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -30,7 +32,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -78,11 +80,11 @@ public class AuthController {
     }
 
     @PostMapping(value = "verify-otp")
+    @Transactional
     public Map<String, Object> verifyOtp(@RequestBody AuthRequest authenticationRequest) {
         Map<String, Object> returnMap = new HashMap<>();
         try {
-            User user = userRepository.findByMobile(authenticationRequest.getPhoneNo())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userService.findByMobile(authenticationRequest);
             //verify otp
             if (authenticationRequest.getOtp().equals(otpService.getCacheOtp(authenticationRequest.getPhoneNo()))) {
                 AuthResponse authResponse = authService.getAuthResponseFromUser(user);
