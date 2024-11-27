@@ -106,6 +106,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         Page<News> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
         Page<NewsDTO> newsDTOS = dataPage.map(mapper::toDto);
         getAllWithReaction(newsDTOS.getContent());
+
         return newsDTOS;
     }
 

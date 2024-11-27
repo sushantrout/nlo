@@ -12,4 +12,5 @@ public class InfographicsDTO extends BaseDTO{
     private String url;
     private List<ReactionDTO> reactions;
     private ReactionType currentUserReaction;
+    private Number totalShare;
 }

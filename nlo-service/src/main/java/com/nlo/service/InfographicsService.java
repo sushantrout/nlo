@@ -2,12 +2,10 @@ package com.nlo.service;
 
 import com.nlo.constant.ReactionType;
 import com.nlo.entity.Infographics;
-import com.nlo.entity.News;
 import com.nlo.entity.Reaction;
 import com.nlo.mapper.InfographicsMapper;
 import com.nlo.mapper.ReactionMapper;
 import com.nlo.model.InfographicsDTO;
-import com.nlo.model.NewsDTO;
 import com.nlo.model.ReactionDTO;
 import com.nlo.model.UserDto;
 import com.nlo.repository.Infographicsrepository;
@@ -16,6 +14,9 @@ import com.nlo.repository.dbdto.ReactionDBDTO;
 import com.nlo.validation.InfographicsValidation;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -31,6 +32,10 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
 
     @Autowired
     private ReactionMapper reactionMapper;
+
+    @Lazy
+    @Autowired
+    private InfographicsShareService infographicsShareService;
 
     protected InfographicsService(Infographicsrepository repository, InfographicsMapper mapper, InfographicsValidation validation) {
         super(repository, mapper, validation);
@@ -68,19 +73,35 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
     }
 
     @Override
+    public Page<InfographicsDTO> getAll(Pageable pageable) {
+        Page<Infographics> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
+        Page<InfographicsDTO> infographicsDTOs = dataPage.map(mapper::toDto);
+        infographicsDTOs.stream().parallel().forEach(e -> e.setTotalShare(infographicsShareService.getShareCountByInfographics(e.getId())));
+        getAllWithReaction(infographicsDTOs.getContent());
+        return infographicsDTOs;
+    }
+
+    @Override
     public Optional<InfographicsDTO> getById(String id, String shareId) {
         Optional<Infographics> dataOpt = repository.findById(id);
-        Optional<InfographicsDTO> newsDTO = dataOpt.map(mapper::toDto);
-        if(newsDTO.isPresent()) {
+        Optional<InfographicsDTO> infographicsDTO = dataOpt.map(mapper::toDto);
+        if(infographicsDTO.isPresent()) {
             ArrayList<InfographicsDTO> dtoList = new ArrayList<>();
-            dtoList.add(newsDTO.get());
+            dtoList.add(infographicsDTO.get());
             getAllWithReaction(dtoList);
         }
-        return newsDTO;
+
+        activeShareCount(shareId);
+        infographicsDTO.ifPresent(dto -> dto.setTotalShare(infographicsShareService.getShareCountByInfographics(dataOpt.get().getId())));
+        return infographicsDTO;
+    }
+
+    private void activeShareCount(String shareId) {
+        infographicsShareService.updateTheStatus(shareId);
     }
 
 
-    public List<InfographicsDTO> getAllWithReaction(List<InfographicsDTO> dtoList) {
+    public void getAllWithReaction(List<InfographicsDTO> dtoList) {
         List<String> infographicsIds = dtoList.stream().map(InfographicsDTO::getId).toList();
 
         UserDto currentUser = userService.getCurrentUser();
@@ -98,6 +119,5 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
                 }
             });
         }
-        return dtoList;
     }
 }

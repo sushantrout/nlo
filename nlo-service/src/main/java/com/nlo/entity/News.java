@@ -19,6 +19,7 @@ public class News extends BaseEntity {
 
     private LocalDateTime publishedDate;
 
+    @Column(length = 512)
     private String staticUrl;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
