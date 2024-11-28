@@ -7,9 +7,7 @@ import com.nlo.model.UserDto;
 import com.nlo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -94,7 +92,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public String loadByMembershipId(String memberShipId) {
+    public String getMobileByMembershipId(String memberShipId) {
         return userRepository.findByMemberShipId(memberShipId)
                 .map(User::getMobile)
                 .orElse(null);

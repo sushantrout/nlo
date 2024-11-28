@@ -3,11 +3,8 @@ package com.nlo.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.nlo.entity.User;
 import com.nlo.model.MemberShipDTO;
 import com.nlo.model.UserDto;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,30 +74,5 @@ public class OtpService {
     public void clearOtp(String key) {
         otpCache.invalidate(key);
     }
-
-    public Map<String, Object> getOtpByMemberShipId(String memberShipId) {
-        String mobileNumber = userService.loadByMembershipId(memberShipId);
-
-        if(Objects.isNull(mobileNumber)) {
-            MemberShipDTO memberShipDTO = new MemberShipDTO();
-            memberShipDTO.setMembershipId(memberShipId);
-            MemberShipDTO body = restTemplate.postForEntity("https://www.mypartydashboard.com/BSA2/WebService/Cadre/getCadreMobileNoByMembershipId",
-                    memberShipDTO,
-                    MemberShipDTO.class
-            ).getBody();
-            UserDto userDto = new UserDto();
-            userDto.setMobile(body.getMobileNo());
-            userDto.setMemberShipId(memberShipId);
-            mobileNumber = userService.saveUser(userDto).getMobile();
-        }
-        String otp = generateOtp(mobileNumber);
-        Map<String, Object> returnMap = new HashMap<>();
-        returnMap.put("otp", otp);
-        returnMap.put("mobile", mobileNumber);
-        returnMap.put("status", "success");
-        returnMap.put("message", "Otp sent successfully");
-        return returnMap;
-    }
-
 
 }
