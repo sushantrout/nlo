@@ -4,6 +4,7 @@ import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 
@@ -35,11 +41,43 @@ public class MinioStorageService {
             String objectName = folderName + "/" + id + "/" + file.getOriginalFilename();
 
             minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(file.getInputStream(), file.getSize(), -1).build());
+
+            /*// Generate and save a thumbnail if the file is an image
+            if (isImage(file)) {
+                String thumbnailName = folderName + "/" + id + "/thumbnails/" + file.getOriginalFilename();
+                byte[] thumbnailBytes = generateThumbnail(file);
+                InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailBytes);
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(thumbnailName)
+                                .stream(thumbnailInputStream, thumbnailBytes.length, -1)
+                                .build()
+                );
+            }*/
+
+
             return objectName;
         } catch (Exception e) {
             log.error(ExceptionUtils.getStackTrace(e));
         }
         return null;
+    }
+
+
+    private boolean isImage(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
+    }
+
+    private byte[] generateThumbnail(MultipartFile file) throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage originalImage = ImageIO.read(inputStream);
+            BufferedImage thumbnail = Scalr.resize(originalImage, 250); // Resize to 150px width
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(thumbnail, "jpg", outputStream);
+            return outputStream.toByteArray();
+        }
     }
 
     public ResponseEntity<?> download(String path) {

@@ -90,6 +90,7 @@ public class OtpService {
             ).getBody();
             UserDto userDto = new UserDto();
             userDto.setMobile(body.getMobileNo());
+            userDto.setMemberShipId(memberShipId);
             mobileNumber = userService.saveUser(userDto).getMobile();
         }
         String otp = generateOtp(mobileNumber);
