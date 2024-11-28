@@ -93,4 +93,10 @@ public class UserService {
         return userRepository.findByMobile(authenticationRequest.getPhoneNo())
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    public String loadByMembershipId(String memberShipId) {
+        return userRepository.findByMemberShipId(memberShipId)
+                .map(User::getMobile)
+                .orElse(null);
+    }
 }

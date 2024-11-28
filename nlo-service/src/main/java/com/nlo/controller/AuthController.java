@@ -122,4 +122,20 @@ public class AuthController {
                 .loadUserByUsername(authenticationRequest.getPhoneNo());
         return jwtTokenUtil.generateToken(userDetails);
     }
+
+
+    @GetMapping(value = "request-otp/by-member-ship/{memberShipId}")
+    public Map<String, Object> getOtpByMemberShipId(@PathVariable String memberShipId) {
+        Map<String, Object> returnMap = new HashMap<>();
+        try {
+            //generate OTP
+            return otpService.getOtpByMemberShipId(memberShipId);
+
+        } catch (Exception e) {
+            returnMap.put("status", "failed");
+            returnMap.put("message", e.getMessage());
+        }
+
+        return returnMap;
+    }
 }

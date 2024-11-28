@@ -85,7 +85,7 @@ public class AuthService {
             User user = this.userRepository.findByUsername(userEmail)
                     .orElseThrow();
             // Convert it to UserDetails
-            org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), List.of());
+            org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), List.of());
 
             if (jwtService.isTokenValid(refreshToken, userDetails)) {
                 var accessToken = jwtService.generateToken(userDetails);

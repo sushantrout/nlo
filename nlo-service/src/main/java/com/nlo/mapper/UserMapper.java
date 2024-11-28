@@ -25,6 +25,7 @@ public class UserMapper implements BaseMapper<UserDto, User> {
         userDto.setName(user.getName());
         userDto.setProfileImage(user.getProfileImage());
         userDto.setRole(user.getRole());
+        userDto.setMemberShipId(userDto.getMemberShipId());
         if(Objects.nonNull(user.getConstituency())) {
             ConstituencyDTO constituencyDTO = new ConstituencyDTO();
             constituencyDTO.setId(user.getConstituency().getId());
@@ -46,6 +47,7 @@ public class UserMapper implements BaseMapper<UserDto, User> {
         user.setName(userDto.getName());
         user.setProfileImage(userDto.getProfileImage());
         user.setRole(userDto.getRole());
+        user.setMemberShipId(userDto.getMemberShipId());
         if(Objects.nonNull(userDto.getConstituencyDTO())) {
             Constituency constituency = new Constituency();
             constituency.setId(userDto.getConstituencyDTO().getId());
