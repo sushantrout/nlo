@@ -8,4 +8,7 @@ import lombok.Setter;
 public class MemberShipDTO {
     String membershipId;
     String mobileNo;
+    String cadreName;
+    String constituency;
+    String imgUrl;
 }

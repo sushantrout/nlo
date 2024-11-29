@@ -23,4 +23,11 @@ public class ConstituencyService extends BaseServiceImpl<Constituency, Constitue
                 .sorted(Comparator.comparing(ConstituencyDTO::getTitle))
                 .toList();
     }
+
+    public ConstituencyDTO getConstituencyByName(String constituency) {
+        return repository.findConstituencyByName(constituency).stream()
+                .findFirst()
+                .map(mapper::toDto)
+                .orElse(null);
+    }
 }

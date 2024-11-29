@@ -25,7 +25,7 @@ public class AuthController {
     private final AuthService authService;
     private final OtpService otpService;
 
-    @PostMapping(path = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(path = "/token")
     public ResponseEntity<AuthResponse> getToken(@RequestParam(value = "grant_type") GrantType grantType,
                                                  @RequestParam(required = false) String password,
                                                  @RequestParam(required = false) String username,

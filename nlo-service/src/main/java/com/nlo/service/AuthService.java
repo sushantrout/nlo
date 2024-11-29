@@ -9,6 +9,7 @@ import com.nlo.model.MemberShipDTO;
 import com.nlo.model.UserDto;
 import com.nlo.repository.UserRepository;
 import com.nlo.security.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@Slf4j
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
@@ -40,6 +42,9 @@ public class AuthService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ConstituencyService constituencyService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -124,19 +129,29 @@ public class AuthService {
         if (StringUtils.isBlank(mobileNumber)) {
             MemberShipDTO memberShipDTO = new MemberShipDTO();
             memberShipDTO.setMembershipId(membershipId);
-            MemberShipDTO body = restTemplate.postForEntity("https://www.mypartydashboard.com/BSA2/WebService/Cadre/getCadreMobileNoByMembershipId",
+            MemberShipDTO body = restTemplate.postForEntity("https://www.mypartydashboard.com/BSA2/WebService/Cadre/getCadreDetailsByMembershipId",
                     memberShipDTO,
                     MemberShipDTO.class
             ).getBody();
             UserDto userDto = new UserDto();
             userDto.setMobile(body.getMobileNo());
             userDto.setMemberShipId(membershipId);
+            userDto.setProfileImage(body.getImgUrl());
+            userDto.setName(body.getCadreName());
+            String constituency = body.getConstituency();
+            if(StringUtils.isNotBlank(constituency)) {
+                try {
+                    userDto.setConstituencyDTO(constituencyService.getConstituencyByName(constituency));
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
+            }
             mobileNumber = userService.saveUser(userDto).getMobile();
         }
         String otp = otpService.generateOtp(mobileNumber);
 
         return AuthResponse.builder()
-                .phoneNo(request.getMobile())
+                .phoneNo(mobileNumber)
                 .otp(otp)
                 .otpExpiresIn(OTP_EXPIRE_MIN)
                 .build();
