@@ -1,5 +1,6 @@
 package com.nlo.service;
 
+import com.nlo.entity.ApplicationBadge;
 import com.nlo.entity.ApplicationRating;
 import com.nlo.mapper.ApplicationRatingMapper;
 import com.nlo.model.*;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -40,6 +42,7 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
         super(repository, mapper, validation);
     }
 
+    @Transactional
     public List<UserRate> getTopRated(Long limit) {
         ApplicationRating applicationRating = repository.findByDeletedFalseOrDeletedIsNull(PageRequest.of(0, 1)).stream().findFirst().orElse(new ApplicationRating());
 
@@ -60,7 +63,7 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
 
             // Initialize the data map with user details
             List<UserRate> dataMap = userRepository.findUserIdAndNamesByIds(unionSet).stream()
-                    .map(user -> new UserRate(user.getId(), user.getName(), 0L))
+                    .map(user -> new UserRate(user.getId(), user.getName(), user.getImage(), 0L, null))
                     .collect(Collectors.toList());
 
             updateTotalRatings(dataMap, reactions.get(),
@@ -85,11 +88,14 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
                                 .ifPresent(dm -> dm.setTotalRating(dm.getTotalRating() + e.getTotalRate()));
                     });
 
-            // Return the results sorted by rating in descending order, limited to the specified number
             return dataMap.stream()
                     .sorted(Comparator.comparingLong(UserRate::getTotalRating).reversed())
                     .limit(limit != null ? limit : dataMap.size())
-                    .collect(Collectors.toList());
+                    .map(e -> {
+                        e.setReward(getRewardTitle(applicationRating.getApplicationBadges(), e.getTotalRating()));
+                        return e;
+                    })
+                    .toList();
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -97,6 +103,19 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
         }
 
     }
+
+    private String getRewardTitle(List<ApplicationBadge> applicationBadges, Long totalRating) {
+        if (applicationBadges == null || totalRating == null) {
+            return null; // Handle null input gracefully
+        }
+
+        return applicationBadges.stream()
+                .filter(badge -> totalRating >= badge.getMinPoint() && totalRating <= badge.getMaxPoint())
+                .map(ApplicationBadge::getTitle)
+                .findFirst()
+                .orElse(null); // Return null if no matching badge is found
+    }
+
 
     private <T> void updateTotalRatings(List<UserRate> dataMap, List<T> summaries,
                                         Function<T, String> userIdExtractor,

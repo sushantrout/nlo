@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByMobile(String mobile);
     Optional<User> findByMemberShipId(String memberShipId);
 
-    @Query("SELECT new com.nlo.model.UserIdNameDTO(u.id, u.name) FROM User u WHERE u.id IN :ids")
+    @Query("SELECT new com.nlo.model.UserIdNameDTO(u.id, u.name, u.profileImage) FROM User u WHERE u.id IN :ids")
     List<UserIdNameDTO> findUserIdAndNamesByIds(@Param("ids") Set<String> ids);
 
 }

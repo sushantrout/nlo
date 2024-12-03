@@ -8,5 +8,7 @@ import lombok.Data;
 public class UserRate {
     private String id;
     private String name;
+    private String profileImage;
     private Long totalRating;
+    private String reward;
 }
