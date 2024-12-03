@@ -32,8 +32,9 @@ public class News extends BaseEntity {
     @ManyToOne
     private Category category;
 
-    private Long totalShare;
-
     @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ViewDetail> viewDetails = new ArrayList<>();
+
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<NewsShare> newsShares = new ArrayList<>();
 }

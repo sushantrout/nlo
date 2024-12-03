@@ -1,16 +1,17 @@
 package com.nlo.service;
 
 import com.nlo.constant.ShareType;
-import com.nlo.entity.Infographics;
-import com.nlo.entity.News;
-import com.nlo.entity.User;
+import com.nlo.entity.*;
 import com.nlo.model.UserDto;
+import com.nlo.repository.InfographicsShareRepository;
 import com.nlo.repository.Infographicsrepository;
 import com.nlo.repository.NewsRepository;
+import com.nlo.repository.NewsShareRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -20,6 +21,8 @@ public class ShareService {
     private final NewsRepository newsRepository;
     private final Infographicsrepository infographicsrepository;
     private final UserService userService;
+    private final InfographicsShareRepository infographicsShareRepository;
+    private final NewsShareRepository newsShareRepository;
 
     public void increseShare(ShareType type, String objectId) {
         switch (type) {
@@ -34,28 +37,36 @@ public class ShareService {
 
     private void increseInfographicsShare(String objectId) {
         Infographics infographics = infographicsrepository.findById(objectId).orElseThrow();
-        infographics.setTotalShare(Optional.ofNullable(infographics.getTotalShare()).orElse(0L) + 1);
-        infographicsrepository.save(infographics);
-        increseUserShareCount();
+        InfographicsShare infographicsShare = new InfographicsShare();
+        User curentuser = getCurentuser();
+        if(Objects.nonNull(curentuser)) {
+            infographicsShare.setInfographics(infographics);
+            infographicsShare.setUser(curentuser);
+            infographicsShareRepository.save(infographicsShare);
+        }
+
     }
 
     private void increseNewsShare(String objectId) {
         News news = newsRepository.findById(objectId).orElseThrow();
-        news.setTotalShare(Optional.ofNullable(news.getTotalShare()).orElse(0L) + 1);
-        newsRepository.save(news);
-        increseUserShareCount();
+        NewsShare newsShare = new NewsShare();
+        User curentuser = getCurentuser();
+        if(Objects.nonNull(curentuser)) {
+            newsShare.setNews(news);
+            newsShare.setUser(curentuser);
+            newsShareRepository.save(newsShare);
+        }
     }
 
 
-    public void increseUserShareCount() {
+    public User getCurentuser() {
         try {
             UserDto currentUser = userService.getCurrentUser();
             String currentUserId = currentUser.getId();
-            User user = userService.findByUserId(currentUserId);
-            user.setTotalShare(Optional.ofNullable(user.getTotalShare()).orElse(0L) + 1);
-            userService.saveEntity(user);
+            return userService.findByUserId(currentUserId);
         } catch (Exception exception) {
             log.error(exception.getMessage());
         }
+        return null;
     }
 }

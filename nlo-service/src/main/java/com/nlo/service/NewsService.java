@@ -178,7 +178,9 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
             if (byNewsId.isEmpty()) {
                 ViewDetail entity = new ViewDetail();
                 entity.setNews(news);
-                entity.setUserId(currentUser.getId());
+                User user = new User();
+                user.setId(currentUser.getId());
+                entity.setUser(user);
                 viewDetailRepository.save(entity);
             }
 

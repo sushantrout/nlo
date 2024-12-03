@@ -32,7 +32,6 @@ public class UserMapper implements BaseMapper<UserDto, User> {
             constituencyDTO.setTitle(user.getConstituency().getTitle());
             userDto.setConstituencyDTO(constituencyDTO);
         }
-        userDto.setTotalShare(user.getTotalShare());
         return userDto;
     }
 

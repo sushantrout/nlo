@@ -10,7 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ViewDetail extends BaseEntity {
-    String userId;
+    @ManyToOne
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "news_id")

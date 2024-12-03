@@ -42,7 +42,5 @@ public class User {
 
     String memberShipId;
 
-    private Long totalShare;
-
     private String deviceToken;
 }

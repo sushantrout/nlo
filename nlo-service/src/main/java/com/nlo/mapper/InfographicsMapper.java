@@ -17,7 +17,7 @@ public class InfographicsMapper implements BaseMapper<InfographicsDTO, Infograph
         dto.setTitle(infographics.getTitle());
         dto.setUrl(infographics.getUrl());
         dto.setReactions(reactionMapper.toDtoList(infographics.getReactions()));
-        dto.setTotalShare(infographics.getTotalShare());
+        dto.setTotalShare(infographics.getInfographicsShares().size());
         return dto;
     }
 

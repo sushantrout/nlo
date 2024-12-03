@@ -1,6 +1,5 @@
 package com.nlo.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import lombok.Setter;
 @Setter
 @Entity
 public class InfographicsShare extends BaseEntity {
-    @Column(unique = true)
     private String shareCode;
 
     @ManyToOne

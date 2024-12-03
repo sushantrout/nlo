@@ -13,9 +13,9 @@ import java.util.List;
 @Getter
 @Setter
 public class ApplicationRating extends BaseEntity {
-    private Long likePoint;
-    private Long dislikePoint;
-    private Long sharePoint;
+    private Long likePoint = 1L;
+    private Long dislikePoint = 1L;
+    private Long sharePoint = 1L;
     @OneToMany(fetch = FetchType.EAGER)
     private List<ApplicationBadge> applicationBadges = new ArrayList<>();
 }
