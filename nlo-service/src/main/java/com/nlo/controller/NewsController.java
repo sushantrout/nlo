@@ -53,4 +53,9 @@ public class NewsController extends BaseController<NewsDTO, NewsService>{
     public NewsDTO makeHot(@PathVariable String  newsId, @PathVariable Boolean value) {
         return service.makeHot(newsId, value);
     }
+
+    @PostMapping("{newsId}/view")
+    public void view(@PathVariable String  newsId){
+        service.view(newsId);
+    }
 }

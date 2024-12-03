@@ -76,7 +76,6 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
     public Page<InfographicsDTO> getAll(Pageable pageable) {
         Page<Infographics> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
         Page<InfographicsDTO> infographicsDTOs = dataPage.map(mapper::toDto);
-        infographicsDTOs.stream().parallel().forEach(e -> e.setTotalShare(infographicsShareService.getShareCountByInfographics(e.getId())));
         getAllWithReaction(infographicsDTOs.getContent());
         return infographicsDTOs;
     }
@@ -92,7 +91,6 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
         }
 
         activeShareCount(shareId);
-        infographicsDTO.ifPresent(dto -> dto.setTotalShare(infographicsShareService.getShareCountByInfographics(dataOpt.get().getId())));
         return infographicsDTO;
     }
 

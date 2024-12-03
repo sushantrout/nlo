@@ -97,4 +97,16 @@ public class UserService {
                 .map(User::getMobile)
                 .orElse(null);
     }
+
+    public User findByUserId(String currentUserId) {
+        return userRepository.findById(currentUserId).orElseThrow();
+    }
+
+    public void saveEntity(User user) {
+        userRepository.save(user);
+    }
+
+    public User getUserBy(String id, String deviceToken) {
+        return null;
+    }
 }

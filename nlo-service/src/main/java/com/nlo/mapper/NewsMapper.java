@@ -39,6 +39,8 @@ public class NewsMapper implements BaseMapper<NewsDTO, News> {
             categoryDTO.setTitle(category.getTitle());
             newsDTO.setCategory(categoryDTO);
         }
+        newsDTO.setTotalShare(news.getTotalShare());
+        newsDTO.setTotalView(news.getViewDetails().size());
         return newsDTO;
     }
 
@@ -62,7 +64,6 @@ public class NewsMapper implements BaseMapper<NewsDTO, News> {
             category.setId(categoryDTO.getId());
             news.setCategory(category);
         }
-
         return news;
     }
 }

@@ -20,5 +20,6 @@ public class UserDto implements Serializable {
     private String profileImage;
     private ConstituencyDTO constituencyDTO;
     private Role role;
-    String memberShipId;
+    private String memberShipId;
+    private Long totalShare;
 }

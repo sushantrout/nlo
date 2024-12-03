@@ -2,6 +2,7 @@ package com.nlo.repository;
 
 import com.nlo.entity.Reaction;
 import com.nlo.repository.dbdto.ReactionDBDTO;
+import com.nlo.repository.dbdto.UserReactionSummary;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +19,13 @@ public interface ReactionRepository extends BaseRepository<Reaction> {
             "WHERE inf.id IN :infographicsIds AND r.userId = :userId")
     List<ReactionDBDTO> findByUserIdAndInfographicsIds(@Param("userId") String userId, @Param("infographicsIds") List<String> infographicsIds);
 
+
+    @Query("SELECT r.userId AS userId, " +
+            "SUM(CASE WHEN r.reactionType = 'LIKE' THEN 1 ELSE 0 END) AS positiveCount, " +
+            "SUM(CASE WHEN r.reactionType = 'DISLIKE' THEN 1 ELSE 0 END) AS negativeCount " +
+            "FROM Reaction r " +
+            "GROUP BY r.userId")
+    List<UserReactionSummary> calculateLikeDislikeSummaryForAllUsers();
 
 }
 

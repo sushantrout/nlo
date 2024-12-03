@@ -1,10 +1,7 @@
 package com.nlo.service;
 
 import com.nlo.constant.ReactionType;
-import com.nlo.entity.Attachment;
-import com.nlo.entity.Category;
-import com.nlo.entity.News;
-import com.nlo.entity.Reaction;
+import com.nlo.entity.*;
 import com.nlo.mapper.NewsMapper;
 import com.nlo.mapper.ReactionMapper;
 import com.nlo.model.NewsDTO;
@@ -12,9 +9,11 @@ import com.nlo.model.ReactionDTO;
 import com.nlo.model.UserDto;
 import com.nlo.repository.NewsRepository;
 import com.nlo.repository.ReactionRepository;
+import com.nlo.repository.ViewDetailRepository;
 import com.nlo.repository.dbdto.ReactionDBDTO;
 import com.nlo.security.JwtService;
 import com.nlo.validation.NewsValidation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -25,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, NewsValidation, NewsRepository> {
 
@@ -44,6 +44,9 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
     @Autowired
     private AttachmentService attachmentService;
 
+    @Autowired
+    private ViewDetailRepository viewDetailRepository;
+
     @Lazy
     @Autowired
     private NewsShareService newsShareService;
@@ -56,13 +59,13 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
     public Optional<NewsDTO> getById(String id, String shareId) {
         Optional<News> dataOpt = repository.findById(id);
         Optional<NewsDTO> newsDTO = dataOpt.map(mapper::toDto);
-        if(newsDTO.isPresent()) {
+        if (newsDTO.isPresent()) {
             ArrayList<NewsDTO> dtoList = new ArrayList<>();
             dtoList.add(newsDTO.get());
             getAllWithReaction(dtoList);
         }
-        activeShareCount(shareId);
-        newsDTO.ifPresent(dto -> dto.setTotalShare(newsShareService.getShareCountByNewsId(dataOpt.get())));
+        //activeShareCount(shareId);
+        //newsDTO.ifPresent(dto -> dto.setTotalShare(newsShareService.getShareCountByNewsId(dataOpt.get())));
         return newsDTO;
     }
 
@@ -78,12 +81,12 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
             String currentUserId = currentUser.getId();
             reactionDTO.setUserId(currentUserId);
             Optional<ReactionDBDTO> first = reactionRepository.findByUserIdAndNewsIds(currentUserId, List.of(newsId)).stream().findFirst();
-            if(reactionDTO.getReactionType().equals(ReactionType.NONE) && first.isPresent()) {
+            if (reactionDTO.getReactionType().equals(ReactionType.NONE) && first.isPresent()) {
                 news.setReactions(news.getReactions().stream().filter(e -> e.getUserId() != null && !e.getUserId().equals(currentUserId)).collect(Collectors.toList()));
                 repository.save(news);
                 reactionRepository.deleteById(first.get().getReactionId());
             } else {
-                if(first.isPresent()) {
+                if (first.isPresent()) {
                     String reactionId = first.get().getReactionId();
                     reactionRepository.findById(reactionId).ifPresent(re -> {
                         re.setReactionType(reactionDTO.getReactionType());
@@ -106,7 +109,6 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         Page<News> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
         Page<NewsDTO> newsDTOS = dataPage.map(mapper::toDto);
         getAllWithReaction(newsDTOS.getContent());
-
         return newsDTOS;
     }
 
@@ -165,5 +167,24 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
         Page<NewsDTO> newsDTOS = repository.findByCategoryAndDeletedFalseOrDeletedIsNull(category, pageable).map(mapper::toDto);
         getAllWithReaction(newsDTOS.getContent());
         return newsDTOS;
+    }
+
+    public void view(String newsId) {
+        try {
+            News news = repository.findById(newsId).orElseThrow();
+            UserDto currentUser = userService.getCurrentUser();
+            List<ViewDetail> byNewsId = viewDetailRepository.findByNewsIdAndUserId(newsId, currentUser.getId());
+
+            if (byNewsId.isEmpty()) {
+                ViewDetail entity = new ViewDetail();
+                entity.setNews(news);
+                entity.setUserId(currentUser.getId());
+                viewDetailRepository.save(entity);
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
     }
 }

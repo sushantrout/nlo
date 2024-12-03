@@ -13,8 +13,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Attachment extends BaseEntity {
     private String fileName;
-
-
     @Column(length = 512)
     private String url;
     private String contentType;

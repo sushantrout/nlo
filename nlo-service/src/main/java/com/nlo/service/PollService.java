@@ -41,7 +41,6 @@ public class PollService extends BaseServiceImpl<Poll, PollDTO, PollMapper, Poll
     }
 
     public Page<PollDTO> getPageDataForMobile(Pageable pageable) {
-
         UserDto currentUser = userService.getCurrentUser();
         String currentUserId = currentUser.getId();
         Page<Poll> pollsNotAnsweredByUser = repository.findPollsNotAnsweredByUser(currentUserId, pageable);

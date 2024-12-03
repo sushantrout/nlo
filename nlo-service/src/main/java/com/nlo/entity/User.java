@@ -41,4 +41,8 @@ public class User {
     private Role role;
 
     String memberShipId;
+
+    private Long totalShare;
+
+    private String deviceToken;
 }

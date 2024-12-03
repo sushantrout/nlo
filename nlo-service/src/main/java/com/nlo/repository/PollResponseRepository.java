@@ -19,4 +19,6 @@ public interface PollResponseRepository extends BaseRepository<PollResponse> {
             "ORDER BY SUM(pr.option.rate) DESC")
     Page<RatingDTO> findTopUsersByTotalRate(Pageable pageable);
 
+
+
 }

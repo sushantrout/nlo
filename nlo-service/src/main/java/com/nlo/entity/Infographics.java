@@ -19,4 +19,6 @@ public class Infographics extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Reaction> reactions = new ArrayList<>();
 
+    private Long totalShare;
+
 }

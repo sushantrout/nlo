@@ -22,4 +22,5 @@ public class NewsDTO extends BaseDTO{
     private Boolean hot;
     private Number totalShare;
     private CategoryDTO category;
+    private Integer totalView;
 }
