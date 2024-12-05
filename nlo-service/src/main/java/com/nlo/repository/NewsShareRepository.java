@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,7 @@ public interface NewsShareRepository extends JpaRepository<NewsShare, String> {
     @Query("SELECT ns.user.id AS userId, " +
             "COUNT(ns) AS totalShares " +
             "FROM NewsShare ns " +
+            "WHERE (ns.createdOn >= :startTime) " +
             "GROUP BY ns.user.id")
-    List<UserShareSummary> calculateShareSummaryForAllUsers();
+    List<UserShareSummary> calculateShareSummaryForAllUsersAfter(OffsetDateTime startTime);
 }

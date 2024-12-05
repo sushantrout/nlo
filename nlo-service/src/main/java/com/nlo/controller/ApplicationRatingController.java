@@ -1,5 +1,6 @@
 package com.nlo.controller;
 
+import com.nlo.constant.TimeSpan;
 import com.nlo.model.ApplicationRatingDTO;
 import com.nlo.model.UserRate;
 import com.nlo.service.ApplicationRatingService;
@@ -17,8 +18,8 @@ public class ApplicationRatingController extends BaseController<ApplicationRatin
         super(service);
     }
 
-    @GetMapping("/top-rated/{limit}")
-    public List<UserRate> getTopRated(@PathVariable Long limit) {
-        return service.getTopRated(limit);
+    @GetMapping("/top-rated/{limit}/{timeSpan}")
+    public List<UserRate> getTopRated(@PathVariable Long limit, @PathVariable TimeSpan timeSpan) {
+        return service.getTopRated(limit, timeSpan);
     }
 }

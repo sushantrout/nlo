@@ -26,7 +26,8 @@ public class MeetingMapper implements BaseMapper<MeetingDTO, Meeting> {
         dto.setUpdatedOn(meeting.getUpdatedOn());
         dto.setActive(meeting.getActive());
         dto.setDeleted(meeting.getDeleted());
-
+        dto.setMeetingId(meeting.getMeetingId());
+        dto.setMeetingToken(meeting.getMeetingToken());
         if (meeting.getConstituency() != null) {
             ConstituencyDTO constituencyDTO = new ConstituencyDTO();
             constituencyDTO.setId(meeting.getConstituency().getId());
@@ -54,6 +55,8 @@ public class MeetingMapper implements BaseMapper<MeetingDTO, Meeting> {
         meeting.setUpdatedOn(meetingDTO.getUpdatedOn());
         meeting.setActive(meetingDTO.getActive());
         meeting.setDeleted(meetingDTO.getDeleted());
+        meeting.setMeetingId(meetingDTO.getMeetingId());
+        meeting.setMeetingToken(meetingDTO.getMeetingToken());
 
         if (meetingDTO.getConstituencyDTO() != null) {
             Constituency constituency = new Constituency();

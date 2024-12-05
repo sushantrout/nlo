@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
@@ -15,9 +17,10 @@ public interface PollResponseRepository extends BaseRepository<PollResponse> {
 
     @Query("SELECT new com.nlo.model.RatingDTO(pr.user.id, pr.user.username, SUM(pr.option.rate), pr.user.name, pr.user.mobile) " +
             "FROM PollResponse pr " +
+            "WHERE (pr.createdOn >= :startTime) " +
             "GROUP BY pr.user.id, pr.user.username, pr.user.name, pr.user.mobile " +
             "ORDER BY SUM(pr.option.rate) DESC")
-    Page<RatingDTO> findTopUsersByTotalRate(Pageable pageable);
+    Page<RatingDTO> findTopUsersByTotalRate(Pageable pageable, OffsetDateTime startTime);
 
 
 

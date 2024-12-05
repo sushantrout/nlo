@@ -11,5 +11,6 @@ public class ApplicationRatingDTO extends BaseDTO {
     Long likePoint;
     Long dislikePoint;
     Long sharePoint;
+    Long viewPoint;
     List<ApplicationBadgeDTO> applicationBadges;
 }

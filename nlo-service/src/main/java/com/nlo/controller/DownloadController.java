@@ -16,7 +16,8 @@ public class DownloadController {
     public ResponseEntity download(HttpServletRequest request) {
         // Extract the full path after /api/download/
         String fullPath = request.getRequestURI().substring(request.getContextPath().length() + "/api/download/".length());
-        return downloadService.download(fullPath);
+        //return downloadService.download(fullPath);
+        return null;
     }
 }
 

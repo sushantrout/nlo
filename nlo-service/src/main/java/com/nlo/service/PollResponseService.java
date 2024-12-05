@@ -75,6 +75,7 @@ public class PollResponseService {
 
 
     public Page<RatingDTO> getTopRatedList(Pageable pageable) {
-        return pollResponseRepository.findTopUsersByTotalRate(pageable);
+        //return pollResponseRepository.findTopUsersByTotalRate(pageable);
+        return null;
     }
 }

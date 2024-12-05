@@ -12,4 +12,6 @@ public class MeetingDTO extends BaseDTO {
     private String description;
     private String communicationType;
     private ConstituencyDTO constituencyDTO;
+    private String meetingId;
+    private String meetingToken;
 }

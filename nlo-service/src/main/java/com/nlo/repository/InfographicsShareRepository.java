@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,7 @@ public interface InfographicsShareRepository extends JpaRepository<InfographicsS
     @Query("SELECT ns.user.id AS userId, " +
             "COUNT(ns) AS totalShares " +
             "FROM InfographicsShare ns " +
+            "WHERE(ns.createdOn >= :startTime) " +
             "GROUP BY ns.user.id")
-    List<UserShareSummary> calculateShareSummaryForAllUsers();
+    List<UserShareSummary> calculateShareSummaryForAllUsersAfter(OffsetDateTime startTime);
 }

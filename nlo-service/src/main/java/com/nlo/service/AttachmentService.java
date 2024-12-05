@@ -2,7 +2,6 @@ package com.nlo.service;
 
 import com.nlo.entity.Attachment;
 import com.nlo.mapper.AttachmentMapper;
-import com.nlo.minio.MinioStorageService;
 import com.nlo.model.AttachmentDTO;
 import com.nlo.repository.AttachmentRepository;
 import com.nlo.validation.AttachmentValidation;
@@ -18,8 +17,6 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class AttachmentService extends BaseServiceImpl<Attachment, AttachmentDTO, AttachmentMapper, AttachmentValidation, AttachmentRepository> {
-    @Autowired
-    private MinioStorageService minioStorageService;
 
     @Autowired
     private S3StorageService s3StorageService;
@@ -31,8 +28,8 @@ public class AttachmentService extends BaseServiceImpl<Attachment, AttachmentDTO
     public List<Attachment> saveAll(List<MultipartFile> files, String id) {
         if(Objects.isNull(files)) {return new ArrayList<>();}
         return files.stream().map(file -> {
-            String attachments = minioStorageService.saveFile(file, id, "attachments");
-            //String attachments = s3StorageService.saveFile(file, id);
+            //String attachments = minioStorageService.saveFile(file, id, "attachments");
+            String attachments = s3StorageService.saveFile(file, id);
             Attachment attachment = new Attachment();
             attachment.setUrl(attachments);
             attachment.setFileName(file.getOriginalFilename());

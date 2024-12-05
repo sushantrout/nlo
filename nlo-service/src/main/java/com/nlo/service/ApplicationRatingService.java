@@ -1,5 +1,6 @@
 package com.nlo.service;
 
+import com.nlo.constant.TimeSpan;
 import com.nlo.entity.ApplicationBadge;
 import com.nlo.entity.ApplicationRating;
 import com.nlo.mapper.ApplicationRatingMapper;
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -38,17 +40,23 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ViewDetailRepository viewDetailRepository;
+
     protected ApplicationRatingService(ApplicationRatingRepository repository, ApplicationRatingMapper mapper, ApplicationRatingValidation validation) {
         super(repository, mapper, validation);
     }
 
     @Transactional
-    public List<UserRate> getTopRated(Long limit) {
+    public List<UserRate> getTopRated(Long limit, TimeSpan timeSpan) {
         ApplicationRating applicationRating = repository.findByDeletedFalseOrDeletedIsNull(PageRequest.of(0, 1)).stream().findFirst().orElse(new ApplicationRating());
 
-        CompletableFuture<List<UserReactionSummary>> reactions = getUserReactionSummaryAsync();
-        CompletableFuture<List<UserShareSummary>> newsShares = getNewsShareSummaryAsync();
-        CompletableFuture<List<UserShareSummary>> infographicsShares = getInfographicsShareSummaryAsync();
+        OffsetDateTime startTime = getStartTimeForTimeSpan(timeSpan);
+
+        CompletableFuture<List<UserReactionSummary>> reactions = getUserReactionSummaryAsync(startTime);
+        CompletableFuture<List<UserShareSummary>> newsShares = getNewsShareSummaryAsync(startTime);
+        CompletableFuture<List<UserShareSummary>> infographicsShares = getInfographicsShareSummaryAsync(startTime);
+        CompletableFuture<List<UserViewSummary>> totalViewSummery = getTotalViewSummery(startTime);
 
         CompletableFuture.allOf(reactions, newsShares, infographicsShares).join();
 
@@ -78,23 +86,20 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
             updateTotalRatings(dataMap, infographicsShares.get(),
                     UserShareSummary::getUserId, UserShareSummary::getTotalShares, applicationRating.getSharePoint());
 
+            updateTotalRatings(dataMap, totalViewSummery.get(), UserViewSummary::getUserId, UserViewSummary::getTotalViews, applicationRating.getViewPoint());
+
             // Handle additional rates from another repository
-            pollResponseRepository.findTopUsersByTotalRate(null).getContent().stream()
+            pollResponseRepository.findTopUsersByTotalRate(null, startTime).getContent().stream()
                     .filter(e -> e.getUserId() != null && e.getTotalRate() != null)
-                    .forEach(e -> {
-                        dataMap.stream()
-                                .filter(dm -> dm.getId().equals(e.getUserId()))
-                                .findFirst()
-                                .ifPresent(dm -> dm.setTotalRating(dm.getTotalRating() + e.getTotalRate()));
-                    });
+                    .forEach(e -> dataMap.stream()
+                            .filter(dm -> dm.getId().equals(e.getUserId()))
+                            .findFirst()
+                            .ifPresent(dm -> dm.setTotalRating(dm.getTotalRating() + e.getTotalRate())));
 
             return dataMap.stream()
                     .sorted(Comparator.comparingLong(UserRate::getTotalRating).reversed())
                     .limit(limit != null ? limit : dataMap.size())
-                    .map(e -> {
-                        e.setReward(getRewardTitle(applicationRating.getApplicationBadges(), e.getTotalRating()));
-                        return e;
-                    })
+                    .peek(e -> e.setReward(getRewardTitle(applicationRating.getApplicationBadges(), e.getTotalRating())))
                     .toList();
 
         } catch (Exception e) {
@@ -132,20 +137,51 @@ public class ApplicationRatingService extends BaseServiceImpl<ApplicationRating,
     }
 
     @Async
-    public CompletableFuture<List<UserReactionSummary>> getUserReactionSummaryAsync() {
-        List<UserReactionSummary> reactions = reactionRepository.calculateLikeDislikeSummaryForAllUsers();
+    public CompletableFuture<List<UserReactionSummary>> getUserReactionSummaryAsync(OffsetDateTime startTime) {
+        List<UserReactionSummary> reactions = reactionRepository.calculateLikeDislikeSummaryForAllUsersAfter(startTime);
         return CompletableFuture.completedFuture(reactions);
     }
 
     @Async
-    public CompletableFuture<List<UserShareSummary>> getNewsShareSummaryAsync() {
-        List<UserShareSummary> newsShares = newsShareRepository.calculateShareSummaryForAllUsers();
+    public CompletableFuture<List<UserShareSummary>> getNewsShareSummaryAsync(OffsetDateTime startTime) {
+        List<UserShareSummary> newsShares = newsShareRepository.calculateShareSummaryForAllUsersAfter(startTime);
         return CompletableFuture.completedFuture(newsShares);
     }
 
     @Async
-    public CompletableFuture<List<UserShareSummary>> getInfographicsShareSummaryAsync() {
-        List<UserShareSummary> infographicsShares = infographicsShareRepository.calculateShareSummaryForAllUsers();
+    public CompletableFuture<List<UserShareSummary>> getInfographicsShareSummaryAsync(OffsetDateTime startTime) {
+        List<UserShareSummary> infographicsShares = infographicsShareRepository.calculateShareSummaryForAllUsersAfter(startTime);
         return CompletableFuture.completedFuture(infographicsShares);
+    }
+
+    @Async
+    public CompletableFuture<List<UserViewSummary>> getTotalViewSummery(OffsetDateTime startTime) {
+        List<UserViewSummary> userViewSummaries = viewDetailRepository.countGroupByUserIdAfter(startTime);
+        return CompletableFuture.completedFuture(userViewSummaries);
+    }
+
+
+    private OffsetDateTime getStartTimeForTimeSpan(TimeSpan timeSpan) {
+        LocalDateTime localDateTime;
+        switch (timeSpan) {
+            case TODAY:
+                localDateTime = LocalDateTime.now().toLocalDate().atStartOfDay(); // Start of today
+                break;
+            case WEEK:
+                localDateTime = LocalDateTime.now().with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay(); // Start of current week
+                break;
+            case MONTH:
+                localDateTime = LocalDateTime.now().withDayOfMonth(1).toLocalDate().atStartOfDay(); // Start of current month
+                break;
+            case YEAR:
+                localDateTime = LocalDateTime.now().withDayOfYear(1).toLocalDate().atStartOfDay(); // Start of current year
+                break;
+            case ALL:
+                return  OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+            default:
+                throw new IllegalArgumentException("Unsupported time span: " + timeSpan);
+        }
+        // Convert LocalDateTime to OffsetDateTime using the system's default time zone
+        return localDateTime.atOffset(ZoneId.systemDefault().getRules().getOffset(localDateTime));
     }
 }

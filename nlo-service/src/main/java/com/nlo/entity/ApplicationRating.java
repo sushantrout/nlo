@@ -16,6 +16,7 @@ public class ApplicationRating extends BaseEntity {
     private Long likePoint = 1L;
     private Long dislikePoint = 1L;
     private Long sharePoint = 1L;
+    private Long viewPoint = 1L;
     @OneToMany(fetch = FetchType.EAGER)
     private List<ApplicationBadge> applicationBadges = new ArrayList<>();
 }

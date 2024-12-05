@@ -27,7 +27,7 @@ public class ApplicationRatingMapper implements BaseMapper<ApplicationRatingDTO,
         applicationRatingDTO.setLikePoint(applicationRating.getLikePoint());
         applicationRatingDTO.setDislikePoint(applicationRating.getDislikePoint());
         applicationRatingDTO.setSharePoint(applicationRating.getSharePoint());
-
+        applicationRatingDTO.setViewPoint(applicationRating.getViewPoint());
         List<ApplicationBadge> applicationBadges = applicationRating.getApplicationBadges();
         if (Objects.nonNull(applicationBadges)) {
             List<ApplicationBadgeDTO> badgeDTOs = applicationBadges.stream()
@@ -51,7 +51,7 @@ public class ApplicationRatingMapper implements BaseMapper<ApplicationRatingDTO,
         applicationRating.setLikePoint(applicationRatingDTO.getLikePoint());
         applicationRating.setDislikePoint(applicationRatingDTO.getDislikePoint());
         applicationRating.setSharePoint(applicationRatingDTO.getSharePoint());
-
+        applicationRating.setViewPoint(applicationRatingDTO.getViewPoint());
         List<ApplicationBadgeDTO> badgeDTOs = applicationRatingDTO.getApplicationBadges();
         if (Objects.nonNull(badgeDTOs)) {
             List<ApplicationBadge> badges = badgeDTOs.stream()

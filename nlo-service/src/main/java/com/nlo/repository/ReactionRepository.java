@@ -6,6 +6,8 @@ import com.nlo.repository.dbdto.UserReactionSummary;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface ReactionRepository extends BaseRepository<Reaction> {
@@ -24,8 +26,9 @@ public interface ReactionRepository extends BaseRepository<Reaction> {
             "SUM(CASE WHEN r.reactionType = 'LIKE' THEN 1 ELSE 0 END) AS positiveCount, " +
             "SUM(CASE WHEN r.reactionType = 'DISLIKE' THEN 1 ELSE 0 END) AS negativeCount " +
             "FROM Reaction r " +
+            "WHERE (r.createdOn >= :startTime) " +
             "GROUP BY r.userId")
-    List<UserReactionSummary> calculateLikeDislikeSummaryForAllUsers();
+    List<UserReactionSummary> calculateLikeDislikeSummaryForAllUsersAfter(OffsetDateTime startTime);
 
 }
 
