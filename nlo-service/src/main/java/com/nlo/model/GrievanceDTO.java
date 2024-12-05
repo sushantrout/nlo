@@ -1,5 +1,6 @@
 package com.nlo.model;
 
+import com.nlo.constant.GrievanceStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +15,6 @@ public class GrievanceDTO extends BaseDTO {
     private String subIssueId;
     private String subject;
     private String location;
+    private GrievanceStatus status;
     private List<AttachmentDTO> attachments;
 }

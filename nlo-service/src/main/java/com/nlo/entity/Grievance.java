@@ -1,9 +1,7 @@
 package com.nlo.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import com.nlo.constant.GrievanceStatus;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +14,8 @@ import java.util.List;
 public class Grievance extends BaseEntity {
     private String title;
     private String subject;
-
+    @Enumerated(EnumType.STRING)
+    private GrievanceStatus status;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Attachment> attachments = new ArrayList<>();
 }

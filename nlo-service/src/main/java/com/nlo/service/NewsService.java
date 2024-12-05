@@ -107,6 +107,7 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
     @Override
     public Page<NewsDTO> getAll(Pageable pageable) {
         Page<News> dataPage = repository.findByDeletedFalseOrDeletedIsNull(pageable);
+
         Page<NewsDTO> newsDTOS = dataPage.map(mapper::toDto);
         getAllWithReaction(newsDTOS.getContent());
         return newsDTOS;
@@ -130,6 +131,14 @@ public class NewsService extends BaseServiceImpl<News, NewsDTO, NewsMapper, News
                     newsDTO.setCurrentUserReaction(reaction.getReactionType());
                 }
             });
+
+            List<ViewDetail> byNewsIdInAndUserId = viewDetailRepository.findByNewsIdInAndUserId(newsIds, currentUserId);
+
+            dtoList.parallelStream()
+                    .forEach(e -> {
+                        boolean match = byNewsIdInAndUserId.parallelStream().anyMatch(v -> v.getNews().getId().equals(e.getId()));
+                        e.setCurrentUserViewStatus(match);
+                    });
         }
         return dtoList;
     }

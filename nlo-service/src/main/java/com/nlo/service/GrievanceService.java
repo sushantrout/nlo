@@ -1,5 +1,6 @@
 package com.nlo.service;
 
+import com.nlo.constant.GrievanceStatus;
 import com.nlo.entity.Attachment;
 import com.nlo.entity.Grievance;
 import com.nlo.mapper.GrievanceMapper;
@@ -29,5 +30,11 @@ public class GrievanceService extends BaseServiceImpl<Grievance, GrievanceDTO, G
         entity.getAttachments().addAll(attachments);
         entity = repository.save(entity);
         return mapper.toDto(entity);
+    }
+
+    public void updateStatus(String id, GrievanceStatus status) {
+        Grievance grievance = repository.findById(id).orElseThrow();
+        grievance.setStatus(status);
+        repository.save(grievance);
     }
 }

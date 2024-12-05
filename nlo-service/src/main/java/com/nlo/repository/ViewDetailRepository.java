@@ -13,6 +13,8 @@ import java.util.List;
 public interface ViewDetailRepository extends BaseRepository<ViewDetail> {
     List<ViewDetail> findByNewsIdAndUserId(String newsId, String userId);
 
+    List<ViewDetail> findByNewsIdInAndUserId(List<String> newsIds, String userId);
+
     @Query("SELECT v.user.id AS userId, COUNT(v) AS viewCount FROM ViewDetail v " +
             "WHERE (v.createdOn >= :startTime) " +
             "GROUP BY v.user.id")

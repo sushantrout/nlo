@@ -9,6 +9,7 @@ import com.nlo.model.MemberShipDTO;
 import com.nlo.model.UserDto;
 import com.nlo.repository.UserRepository;
 import com.nlo.security.JwtService;
+import com.nlo.util.SMSUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class AuthService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private SMSUtil smsUtil;
 
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
@@ -103,10 +107,10 @@ public class AuthService {
     public AuthResponse authenticateUsingRequestOtp(AuthRequest request) {
         Preconditions.checkArgument(StringUtils.isNotBlank(request.getMobile()), "PhoneNo cannot be blank");
         String otp = otpService.generateOtp(request.getMobile());
-
+        smsUtil.sendMessage(otp, request.getMobile());
         return AuthResponse.builder()
                 .phoneNo(request.getMobile())
-                .otp(otp)
+                //.otp(otp)
                 .otpExpiresIn(OTP_EXPIRE_MIN)
                 .build();
     }

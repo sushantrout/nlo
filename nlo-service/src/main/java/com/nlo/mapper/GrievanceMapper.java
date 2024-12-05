@@ -22,6 +22,7 @@ public class GrievanceMapper implements BaseMapper<GrievanceDTO, Grievance> {
         dto.setSubject(grievance.getSubject());
         dto.setAttachments(attachmentMapper.toDtoList(grievance.getAttachments()));
         dto.setCreatedOn(grievance.getCreatedOn());
+        dto.setStatus(grievance.getStatus());
         return dto;
     }
 
@@ -31,6 +32,7 @@ public class GrievanceMapper implements BaseMapper<GrievanceDTO, Grievance> {
         grievance.setId(grievanceDTO.getId());
         grievance.setTitle(grievanceDTO.getTitle());
         grievance.setSubject(grievanceDTO.getSubject());
+        grievance.setStatus(grievanceDTO.getStatus());
         return grievance;
     }
 }
