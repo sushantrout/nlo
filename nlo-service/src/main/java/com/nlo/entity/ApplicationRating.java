@@ -1,5 +1,6 @@
 package com.nlo.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -17,6 +18,6 @@ public class ApplicationRating extends BaseEntity {
     private Long dislikePoint = 1L;
     private Long sharePoint = 1L;
     private Long viewPoint = 1L;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<ApplicationBadge> applicationBadges = new ArrayList<>();
 }

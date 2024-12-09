@@ -6,6 +6,7 @@ import com.nlo.model.AttachmentDTO;
 import com.nlo.repository.AttachmentRepository;
 import com.nlo.validation.AttachmentValidation;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,15 +29,18 @@ public class AttachmentService extends BaseServiceImpl<Attachment, AttachmentDTO
     public List<Attachment> saveAll(List<MultipartFile> files, String id) {
         if(Objects.isNull(files)) {return new ArrayList<>();}
         return files.stream().map(file -> {
-            //String attachments = minioStorageService.saveFile(file, id, "attachments");
-            String attachments = s3StorageService.saveFile(file, id);
-            Attachment attachment = new Attachment();
-            attachment.setUrl(attachments);
-            attachment.setFileName(file.getOriginalFilename());
-            attachment.setContentType(file.getContentType());
-            attachment.setExtension(Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf(".") + 1));
-            attachment.setActive(true);
-            return repository.save(attachment);
+            return saveAttachment(id, file);
         }).toList();
+    }
+
+    public Attachment saveAttachment(String id, MultipartFile file) {
+        String url = s3StorageService.saveFile(file, id);
+        Attachment attachment = new Attachment();
+        attachment.setUrl(url);
+        attachment.setFileName(file.getOriginalFilename());
+        attachment.setContentType(file.getContentType());
+        attachment.setExtension(Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf(".") + 1));
+        attachment.setActive(true);
+        return repository.save(attachment);
     }
 }

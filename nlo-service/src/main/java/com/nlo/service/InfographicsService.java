@@ -1,13 +1,13 @@
 package com.nlo.service;
 
 import com.nlo.constant.ReactionType;
-import com.nlo.entity.Infographics;
-import com.nlo.entity.Reaction;
+import com.nlo.entity.*;
 import com.nlo.mapper.InfographicsMapper;
 import com.nlo.mapper.ReactionMapper;
 import com.nlo.model.InfographicsDTO;
 import com.nlo.model.ReactionDTO;
 import com.nlo.model.UserDto;
+import com.nlo.repository.InfographicsViewDetailsRepository;
 import com.nlo.repository.Infographicsrepository;
 import com.nlo.repository.ReactionRepository;
 import com.nlo.repository.dbdto.ReactionDBDTO;
@@ -36,6 +36,9 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
     @Lazy
     @Autowired
     private InfographicsShareService infographicsShareService;
+
+    @Autowired
+    private InfographicsViewDetailsRepository infographicsViewDetailsRepository;
 
     protected InfographicsService(Infographicsrepository repository, InfographicsMapper mapper, InfographicsValidation validation) {
         super(repository, mapper, validation);
@@ -116,6 +119,31 @@ public class InfographicsService extends BaseServiceImpl<Infographics, Infograph
                     infographicsDTO.setCurrentUserReaction(reaction.getReactionType());
                 }
             });
+            List<InfographicsViewDetails> byInfographicsIdAndUserId = infographicsViewDetailsRepository.findByInfographicsIdInAndUserId(infographicsIds, currentUser.getId());
+
+            dtoList.parallelStream()
+                    .forEach(e -> {
+                        boolean match = byInfographicsIdAndUserId.parallelStream().anyMatch(v -> v.getInfographics().getId().equals(e.getId()));
+                        e.setCurrentUserViewStatus(match);
+                    });
+
+
+        }
+    }
+
+    public void view(String infographicsId) {
+        Infographics infographics = repository.findById(infographicsId).orElseThrow();
+
+        UserDto currentUser = userService.getCurrentUser();
+        List<InfographicsViewDetails> byInfographicsIdAndUserId = infographicsViewDetailsRepository.findByInfographicsIdAndUserId(infographicsId, currentUser.getId());
+
+        if (byInfographicsIdAndUserId.isEmpty()) {
+            InfographicsViewDetails entity = new InfographicsViewDetails();
+            entity.setInfographics(infographics);
+            User user = new User();
+            user.setId(currentUser.getId());
+            entity.setUser(user);
+            infographicsViewDetailsRepository.save(entity);
         }
     }
 }

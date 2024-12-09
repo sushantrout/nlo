@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -49,5 +50,10 @@ public class UserController {
     @GetMapping(value = "/constituency/{constituencyId}")
     public List<UserDto> getUserByConstituency(@PathVariable String constituencyId) {
         return userService.getUserByConstituency(constituencyId);
+    }
+
+    @PutMapping
+    public void updateUserProfile(@RequestParam MultipartFile profileImage) {
+        userService.updateUserProfile(profileImage);
     }
 }

@@ -1,5 +1,6 @@
 package com.nlo.service;
 
+import com.nlo.entity.Attachment;
 import com.nlo.entity.User;
 import com.nlo.mapper.UserMapper;
 import com.nlo.model.AuthRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AttachmentService attachmentService;
 
     public UserDto getUser(String id) {
         User user = userRepository.findById(id)
@@ -73,6 +76,7 @@ public class UserService {
         try {
             UserDetails principal = (UserDetails) authentication.getPrincipal();
             User user = userRepository.findByUsername(principal.getUsername()).orElseThrow();
+
             return userMapper.toDto(user);
         } catch (Exception e) {
             return null;
@@ -108,5 +112,13 @@ public class UserService {
 
     public User getUserBy(String id, String deviceToken) {
         return null;
+    }
+
+    public void updateUserProfile(MultipartFile profileImage) {
+        String currentUserId = getCurrentUser().getId();
+        User user = userRepository.findById(currentUserId).orElseThrow();
+        Attachment attachment = attachmentService.saveAttachment(currentUserId, profileImage);
+        user.setProfileImage(attachment.getUrl());
+        userRepository.save(user);
     }
 }

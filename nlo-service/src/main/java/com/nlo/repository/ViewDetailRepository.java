@@ -5,7 +5,6 @@ import com.nlo.model.UserViewSummary;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -16,7 +15,7 @@ public interface ViewDetailRepository extends BaseRepository<ViewDetail> {
     List<ViewDetail> findByNewsIdInAndUserId(List<String> newsIds, String userId);
 
     @Query("SELECT v.user.id AS userId, COUNT(v) AS viewCount FROM ViewDetail v " +
-            "WHERE (v.createdOn >= :startTime) " +
+            "WHERE (v.createdOn >= :startTime) AND (:userId IS NULL OR v.user.id = :userId) " +
             "GROUP BY v.user.id")
-    List<UserViewSummary> countGroupByUserIdAfter(OffsetDateTime startTime);
+    List<UserViewSummary> countGroupByUserIdAfter(OffsetDateTime startTime, String userId);
 }

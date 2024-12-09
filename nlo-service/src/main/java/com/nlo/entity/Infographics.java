@@ -21,4 +21,9 @@ public class Infographics extends BaseEntity {
 
     @OneToMany(mappedBy = "infographics", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<InfographicsShare> infographicsShares = new ArrayList<>();
+
+    @OneToMany(mappedBy = "infographics", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<InfographicsViewDetails> viewDetails = new ArrayList<>();
+
+
 }

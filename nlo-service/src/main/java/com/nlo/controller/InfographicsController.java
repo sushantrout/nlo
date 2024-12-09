@@ -16,4 +16,9 @@ public class InfographicsController extends BaseController<InfographicsDTO, Info
     public InfographicsDTO reaction(@RequestBody ReactionDTO reactionDTO, @PathVariable String  infographicsId){
         return service.reaction(infographicsId, reactionDTO);
     }
+
+    @PostMapping("{infographicsId}/view")
+    public void view(@PathVariable String  infographicsId){
+        service.view(infographicsId);
+    }
 }
