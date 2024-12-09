@@ -22,7 +22,7 @@ public class TestNotificationController {
         fcmService.sendNotification(request);
 
         request = new NotificationRequest(); //Soumya Nayak
-        request.setToken("e2Q72NNM9kExuGOrFx_Lby:APA91bHj6dHhIY6Z44kmS_mzMlnrygv2RUm0Jzf9daXTZK4NDVD_NEH5sPtmR0bQ8jbjglWJdk2qaqGtUEaBchQoY6zW0YtlDkQdr8Iwy4Jda-KjDCqhmOQ");
+        request.setToken("eNHMFzOIZEnLow_0eAOotn:APA91bF4q75Ms_iDNcgxsEf-B2hCm7_NUvR5uGraApdazQBo9kRcMAAnZ1AcT0ObVYy2-3AcUr_xVNeR8OvbQCggth-hCqzZK5S_4BP6_X28RGosMuIDTE8");
         request.setTitle("Title 1");
         request.setBody("Body 1");
         fcmService.sendNotification(request);

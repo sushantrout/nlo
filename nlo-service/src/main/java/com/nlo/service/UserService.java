@@ -114,10 +114,9 @@ public class UserService {
         return null;
     }
 
-    public void updateUserProfile(MultipartFile profileImage) {
-        String currentUserId = getCurrentUser().getId();
-        User user = userRepository.findById(currentUserId).orElseThrow();
-        Attachment attachment = attachmentService.saveAttachment(currentUserId, profileImage);
+    public void updateUserProfile(String userId, MultipartFile profileImage) {
+        User user = userRepository.findById(userId).orElseThrow();
+        Attachment attachment = attachmentService.saveAttachment(userId, profileImage);
         user.setProfileImage(attachment.getUrl());
         userRepository.save(user);
     }

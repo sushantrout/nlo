@@ -52,8 +52,8 @@ public class UserController {
         return userService.getUserByConstituency(constituencyId);
     }
 
-    @PutMapping
-    public void updateUserProfile(@RequestParam MultipartFile profileImage) {
-        userService.updateUserProfile(profileImage);
+    @PutMapping("update-profile/{userId}")
+    public void updateUserProfile(@PathVariable String userId, @RequestParam MultipartFile profileImage) {
+        userService.updateUserProfile(userId, profileImage);
     }
 }

@@ -14,6 +14,7 @@ public class TODOListMapper implements BaseMapper<TODOListDTO, TODOList> {
         dto.setId(todoList.getId());
         dto.setStaticURL(todoList.getStaticURL());
         dto.setTitle(todoList.getName());
+        setAuditColumn(todoList, dto);
         return dto;
     }
 

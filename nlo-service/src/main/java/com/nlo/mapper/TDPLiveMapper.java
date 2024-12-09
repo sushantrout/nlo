@@ -12,6 +12,7 @@ public class TDPLiveMapper implements BaseMapper<TDPLiveDTO, TDPLive> {
         dto.setId(tdpLive.getId());
         dto.setTitle(tdpLive.getTitle());
         dto.setUrl(tdpLive.getUrl());
+        setAuditColumn(tdpLive, dto);
         return dto;
     }
 

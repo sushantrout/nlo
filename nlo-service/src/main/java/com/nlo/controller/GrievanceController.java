@@ -15,6 +15,12 @@ public class GrievanceController extends BaseController<GrievanceDTO, GrievanceS
         super(service);
     }
 
+
+    @PutMapping("/save-attachment/{grievanceId}")
+    public void saveAttachment(@PathVariable String grievanceId, @RequestParam(required = false) List<MultipartFile> attachments) {
+        service.saveAttachment(grievanceId, attachments);
+    }
+
     @PostMapping("/save-with-attachment")
     public GrievanceDTO saveWithAttachment(@RequestPart GrievanceDTO grievanceDTO, @RequestPart(required = false) List<MultipartFile> files) {
         return service.saveWithAttachment(grievanceDTO, files);

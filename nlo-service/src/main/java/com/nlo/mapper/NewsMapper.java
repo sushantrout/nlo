@@ -41,6 +41,7 @@ public class NewsMapper implements BaseMapper<NewsDTO, News> {
         }
         newsDTO.setTotalShare(news.getNewsShares().size());
         newsDTO.setTotalView(news.getViewDetails().size());
+        setAuditColumn(news, newsDTO);
         return newsDTO;
     }
 

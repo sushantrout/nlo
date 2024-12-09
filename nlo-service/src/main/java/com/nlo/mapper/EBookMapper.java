@@ -25,7 +25,7 @@ public class EBookMapper implements BaseMapper<EBookDTO, EBook> {
         if (eBook.getAttachment() != null) {
             eBookDTO.setAttachmentDTO(attachmentMapper.toDto(eBook.getAttachment()));
         }
-
+        setAuditColumn(eBook, eBookDTO);
         return eBookDTO;
     }
 

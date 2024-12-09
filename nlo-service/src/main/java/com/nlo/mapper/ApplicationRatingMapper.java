@@ -36,7 +36,7 @@ public class ApplicationRatingMapper implements BaseMapper<ApplicationRatingDTO,
                     .collect(Collectors.toList());
             applicationRatingDTO.setApplicationBadges(badgeDTOs);
         }
-
+        setAuditColumn(applicationRating, applicationRatingDTO);
         return applicationRatingDTO;
     }
 

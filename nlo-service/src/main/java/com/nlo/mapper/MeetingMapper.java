@@ -34,7 +34,7 @@ public class MeetingMapper implements BaseMapper<MeetingDTO, Meeting> {
             constituencyDTO.setTitle(meeting.getConstituency().getTitle());
             dto.setConstituencyDTO(constituencyDTO);
         }
-
+        setAuditColumn(meeting, dto);
         return dto;
     }
 

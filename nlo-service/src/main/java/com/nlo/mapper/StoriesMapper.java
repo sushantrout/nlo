@@ -27,6 +27,7 @@ public class StoriesMapper implements BaseMapper<StoriesDTO, Stories> {
             storiesDTO.setAttachments(attachmentMapper.toDtoList(stories.getAttachments()));
         }
         storiesDTO.setIsPublished(stories.getIsPublished());
+        setAuditColumn(stories, storiesDTO);
         return storiesDTO;
     }
 

@@ -1,5 +1,8 @@
 package com.nlo.mapper;
 
+import com.nlo.entity.BaseEntity;
+import com.nlo.model.BaseDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +35,10 @@ public interface BaseMapper<D, E> {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    default void setAuditColumn(BaseEntity baseEntity, BaseDTO baseDTO) {
+        baseDTO.setCreatedOn(baseEntity.getCreatedOn());
     }
 
 }

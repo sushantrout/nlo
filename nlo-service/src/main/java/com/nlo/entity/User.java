@@ -31,8 +31,7 @@ public class User {
     private String mobile;
 
     private String name;
-
-    @Lob
+    
     private String profileImage;
 
     @ManyToOne

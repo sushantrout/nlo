@@ -37,7 +37,8 @@ public class SecurityConfig {
             "/api/news/find-all-details",
             "/api/news/**",
             "api/constituency/**",
-            "/api/notification-test"
+            "/api/notification-test",
+            "/api/users/update-profile/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;

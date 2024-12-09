@@ -37,4 +37,12 @@ public class GrievanceService extends BaseServiceImpl<Grievance, GrievanceDTO, G
         grievance.setStatus(status);
         repository.save(grievance);
     }
+
+    public void saveAttachment(String grievanceId, List<MultipartFile> files) {
+        Grievance entity = repository.findById(grievanceId).orElseThrow();
+        List<Attachment> attachments = attachmentService.saveAll(files, grievanceId);
+        entity = repository.findById(entity.getId()).orElseThrow();
+        entity.getAttachments().addAll(attachments);
+        repository.save(entity);
+    }
 }

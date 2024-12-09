@@ -13,6 +13,7 @@ public class QuickTVMapper implements BaseMapper<QuickTVDTO, QuickTV> {
         dto.setId(quickTV.getId());
         dto.setUrl(quickTV.getUrl());
         dto.setTitle(quickTV.getTitle());
+        setAuditColumn(quickTV, dto);
         return dto;
     }
 

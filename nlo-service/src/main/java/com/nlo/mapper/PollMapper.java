@@ -28,6 +28,7 @@ public class PollMapper implements BaseMapper<PollDTO, Poll> {
         if(Objects.nonNull(options)) {
             dto.setOptions(optionMapper.toDtoList(options));
         }
+        setAuditColumn(poll, dto);
         return dto;
     }
 
